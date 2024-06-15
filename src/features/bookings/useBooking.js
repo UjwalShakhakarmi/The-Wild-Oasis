@@ -9,7 +9,7 @@ export function useBooking() {
     data: booking,
     error,
   } = useQuery({
-    queryKey: ["booking"],
+    queryKey: ["booking", bookingId],
     queryFn: () => getBooking(bookingId),
     //React query try to fetch three times if it fail and if there is no id then there is no any meaning to retry
     retry: false,
