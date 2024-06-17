@@ -29,10 +29,10 @@ function CheckinBooking() {
   const { booking, isLoading } = useBooking();
   const [addBreakfast, setAddBreakfast] = useState(false);
   const moveBack = useMoveBack();
-  const { settings, isLoading: isLoadingSettings } = useSettings;
+  const { settings, isLoading: isLoadingSettings } = useSettings();
   const { checkin, isCheckingIn } = useChecking();
   useEffect(() => setConfirmPaid(booking?.isPaid ?? false), [booking]);
-  if (isLoading) return <Spinner />;
+  if (isLoading || isLoadingSettings) return <Spinner />;
 
   const {
     id: bookingId,
@@ -43,9 +43,21 @@ function CheckinBooking() {
     numNights,
   } = booking;
   const optionalBreakFastPrice =
-    settings.breakfastPrice * numNights * numGuests;
+    settings?.breakfastPrice * numNights * numGuests;
   function handleCheckin() {
     if (!confirmPaid) return;
+    if (addBreakfast) {
+      checkin({
+        bookingId,
+        breakfast: {
+          hasBreakfast: true,
+          extrasPrice: optionalBreakFastPrice,
+          totalPrice: totalPrice + optionalBreakFastPrice,
+        },
+      });
+    } else {
+      checkin({ bookingId, breakfast: {} });
+    }
     checkin(bookingId);
   }
 
@@ -67,7 +79,7 @@ function CheckinBooking() {
             }}
             id="breakfast"
           >
-            Want to add breakfase for {optionalBreakFastPrice}?
+            Want to add breakfase for ${optionalBreakFastPrice}?
           </Checkbox>
         </Box>
       )}
@@ -78,8 +90,14 @@ function CheckinBooking() {
           id="confirm"
           disabled={confirmPaid || isCheckingIn}
         >
-          I confirm that {guests.fullName} has paid the total amount{" "}
-          {formatCurrency(totalPrice)}
+          I confirm that {guests.fullName} has paid the total amount of{" "}
+          {!addBreakfast
+            ? formatCurrency(totalPrice)
+            : `${formatCurrency(
+                totalPrice + optionalBreakFastPrice
+              )} (${formatCurrency(totalPrice)} +  ${formatCurrency(
+                optionalBreakFastPrice
+              )})`}
         </Checkbox>
       </Box>
 
