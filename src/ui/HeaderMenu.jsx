@@ -2,6 +2,7 @@ import { HiOutlineUser } from "react-icons/hi2";
 import ButtonIcon from "./ButtonIcon";
 import { useNavigate } from "react-router-dom";
 import Logout from "../features/authentication/Logout";
+import styled from "styled-components";
 
 const StyledHeaderMenu = styled.ul`
   display: flex;
